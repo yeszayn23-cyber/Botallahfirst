@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 
-# --- حط بياناتك هنا ---
+# --- بيانات البوت ---
 TOKEN = '8000457608:AAEmrrhrKUf1-qRM-JDR1Ux8db3ia_v3zKw'
 ADMIN_ID = 8421694319  # معرفك الخاص كأدمن [cite: 2026-02-13]
 
@@ -15,7 +15,7 @@ data = {
 
 # دالة للتحقق من الاشتراك الإجباري
 def check_sub(user_id):
-    if not data['channels']: # إذا لم تضف قنوات، اسمح للكل بالدخول
+    if not data['channels']: 
         return True
     for ch in data['channels']:
         try:
@@ -30,14 +30,12 @@ def check_sub(user_id):
 def start(message):
     user_id = message.from_user.id
     
-    # واجهة الأدمن (أنت)
     if user_id == ADMIN_ID:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add("📢 القنوات", "📝 الترحيب")
         bot.send_message(message.chat.id, "أهلاً بك يا مطور.. تحكم في بوتك الآن:", reply_markup=markup)
         return
 
-    # واجهة المستخدم العادي
     if not check_sub(user_id):
         markup = types.InlineKeyboardMarkup()
         for ch in data['channels']:
@@ -47,7 +45,6 @@ def start(message):
     else:
         bot.send_message(message.chat.id, data['welcome_msg'])
 
-# إدارة الأوامر للأدمن
 @bot.message_handler(func=lambda m: m.from_user.id == ADMIN_ID)
 def admin_actions(message):
     if message.text == "📢 القنوات":
@@ -86,5 +83,8 @@ def save_ch(message):
     else:
         bot.send_message(message.chat.id, "❌ خطأ! لازم المعرف يبدأ بـ @")
 
-print("البوت شغال...")
+# --- أهم جزء لحل مشكلة Render ---
+print("جاري حذف أي Webhook قديم...")
+bot.remove_webhook() # هذا السطر يحل مشكلة Error 409 Conflict
+print("البوت شغال بنجاح...")
 bot.infinity_polling()
